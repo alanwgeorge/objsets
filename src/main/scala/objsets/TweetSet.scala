@@ -8,7 +8,7 @@ import TweetReader._
  */
 class Tweet(val user: String, val text: String, val retweets: Int) {
   override def toString: String =
-    "User: " + user + "\n" +
+    "User: " + user + " " +
     "Text: " + text + " [" + retweets + "]"
 }
 
@@ -39,13 +39,13 @@ abstract class TweetSet {
    * This method takes a predicate and returns a subset of all the elements
    * in the original set for which the predicate is true.
    *
-   * Question: Can we implment this method here, or should it remain abstract
+   * Question: Can we implement this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def filter(p: Tweet => Boolean): TweetSet = ???
+  def filter(p: Tweet => Boolean): TweetSet = filterAcc(p, new Empty)
 
   /**
-   * This is a helper method for `filter` that propagetes the accumulated tweets.
+   * This is a helper method for `filter` that propagates the accumulated tweets.
    */
   def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet
 
@@ -55,7 +55,7 @@ abstract class TweetSet {
    * Question: Should we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-   def union(that: TweetSet): TweetSet = ???
+   def union(that: TweetSet): TweetSet
 
   /**
    * Returns the tweet from this set which has the greatest retweet count.
@@ -66,7 +66,12 @@ abstract class TweetSet {
    * Question: Should we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def mostRetweeted: Tweet = ???
+  def mostRetweeted: Tweet = {
+    if (this.isInstanceOf[Empty]) throw new java.util.NoSuchElementException("empty set")
+    var tweet: Tweet = new Tweet("", "", Int.MinValue)
+    foreach(t => if (t.retweets >= tweet.retweets) tweet = t)
+    tweet
+  }
 
   /**
    * Returns a list containing all tweets of this set, sorted by retweet count
@@ -77,8 +82,16 @@ abstract class TweetSet {
    * Question: Should we implment this method here, or should it remain abstract
    * and be implemented in the subclasses?
    */
-  def descendingByRetweet: TweetList = ???
-
+  def descendingByRetweet: TweetList = {
+    val most = mostRetweeted
+    val remainder: TweetSet = remove(most)
+    if (remainder.isInstanceOf[Empty]) {
+      new Cons(most, Nil)
+    } else {
+      val nextRec = remainder.descendingByRetweet
+      new Cons(most, nextRec)
+    }
+  }
 
   /**
    * The following methods are already implemented
@@ -106,16 +119,17 @@ abstract class TweetSet {
    * This method takes a function and applies it to every element in the set.
    */
   def foreach(f: Tweet => Unit): Unit
+
+  def count: Int = {
+    var c: Int = 0
+    foreach(t => c += 1)
+    c
+  }
 }
 
 class Empty extends TweetSet {
 
-  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = ???
-
-
-  /**
-   * The following methods are already implemented
-   */
+  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = acc
 
   def contains(tweet: Tweet): Boolean = false
 
@@ -124,17 +138,22 @@ class Empty extends TweetSet {
   def remove(tweet: Tweet): TweetSet = this
 
   def foreach(f: Tweet => Unit): Unit = ()
+
+  override def toString: String = "."
+
+  override def union(that: TweetSet): TweetSet = that
 }
 
 class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
 
-  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = ???
-
+  def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = {
+    if (p(elem)) left.filterAcc(p, right.filterAcc(p, acc.incl(elem)))
+    else left.filterAcc(p, right.filterAcc(p, acc))
+  }
 
   /**
    * The following methods are already implemented
    */
-
   def contains(x: Tweet): Boolean =
     if (x.text < elem.text) left.contains(x)
     else if (elem.text < x.text) right.contains(x)
@@ -156,6 +175,12 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
     left.foreach(f)
     right.foreach(f)
   }
+
+  override def toString: String = "{" + left + elem + right + "}"
+
+  override def union(that: TweetSet): TweetSet = {
+    left.union(right.union(that)).incl(elem)
+  }
 }
 
 trait TweetList {
@@ -167,6 +192,16 @@ trait TweetList {
       f(head)
       tail.foreach(f)
     }
+  def count: Int = {
+    var c: Int = 0
+    foreach(t => c += 1)
+    c
+  }
+  override def toString: String = {
+    var result: String = "["
+    foreach(t => result = result + "[" + t + "]")
+    result + "]"
+  }
 }
 
 object Nil extends TweetList {
