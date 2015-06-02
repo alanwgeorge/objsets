@@ -1,8 +1,5 @@
 package objsets
 
-import common._
-import TweetReader._
-
 /**
  * A class to represent tweets.
  */
@@ -219,14 +216,23 @@ object GoogleVsApple {
   val google = List("android", "Android", "galaxy", "Galaxy", "nexus", "Nexus")
   val apple = List("ios", "iOS", "iphone", "iPhone", "ipad", "iPad")
 
-  lazy val googleTweets: TweetSet = ???
-  lazy val appleTweets: TweetSet = ???
+  def filter(tweet: Tweet, keywords: List[String]): Boolean = {
+    for (keyword <- keywords if tweet.text.contains(keyword))
+      return true
+    false
+  }
+
+  def filterGoogle(tweet: Tweet): Boolean = filter(tweet, google)
+  def filterApple(tweet: Tweet): Boolean = filter(tweet, apple)
+
+  lazy val googleTweets: TweetSet = TweetReader.allTweets.filter(filterGoogle)
+  lazy val appleTweets: TweetSet = TweetReader.allTweets.filter(filterApple)
 
   /**
    * A list of all tweets mentioning a keyword from either apple or google,
    * sorted by the number of retweets.
    */
-  lazy val trending: TweetList = ???
+  lazy val trending: TweetList = googleTweets.union(appleTweets).descendingByRetweet
 }
 
 object Main extends App {

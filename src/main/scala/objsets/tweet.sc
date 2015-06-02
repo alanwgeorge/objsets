@@ -7,8 +7,8 @@ val t4 = new Tweet("george", "E", 11)
 val t5 = new Tweet("george", "Q", 21)
 val t6 = new Tweet("george", "Z", 6)
 val t7 = new Tweet("george", "W", 8)
+val t8 = new Tweet("alan", "akdlfadfjsnexusklajflakdf", 14)
 val ts1 = new NonEmpty(t1, new Empty, new Empty).incl(t2).incl(t3).incl(t4).incl(t5).incl(t6).incl(t7)
-
 ts1.filter(_.retweets > 1)
 ts1.foreach(println(_))
 ts1.mostRetweeted
@@ -21,3 +21,10 @@ ts1.descendingByRetweet.count
 val list: TweetList = new Cons(t1, new Cons(t2, Nil))
 list.count
 TweetReader.allTweets.count
+val googleTweets:TweetSet = TweetReader.allTweets.filter(GoogleVsApple.filterGoogle)
+val appleTweets:TweetSet = TweetReader.allTweets.filter(GoogleVsApple.filterApple)
+googleTweets.mostRetweeted
+appleTweets.mostRetweeted
+val googleAppleTweets: TweetSet = googleTweets union appleTweets
+googleAppleTweets.mostRetweeted
+googleAppleTweets.descendingByRetweet
