@@ -21,8 +21,9 @@ ts1.descendingByRetweet.count
 val list: TweetList = new Cons(t1, new Cons(t2, Nil))
 list.count
 TweetReader.allTweets.count
-val googleTweets:TweetSet = TweetReader.allTweets.filter(GoogleVsApple.filterGoogle)
-val appleTweets:TweetSet = TweetReader.allTweets.filter(GoogleVsApple.filterApple)
+val tweets: TweetSet = TweetReader.allTweets
+val googleTweets:TweetSet = TweetReader.allTweets.filter(tweet => GoogleVsApple.google.exists(keyword => tweet.text.contains(keyword)))
+val appleTweets:TweetSet = TweetReader.allTweets.filter(tweet => GoogleVsApple.apple.exists(keyword => tweet.text.contains(keyword)))
 googleTweets.mostRetweeted
 appleTweets.mostRetweeted
 val googleAppleTweets: TweetSet = googleTweets union appleTweets

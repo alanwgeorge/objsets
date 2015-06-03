@@ -117,11 +117,7 @@ abstract class TweetSet {
    */
   def foreach(f: Tweet => Unit): Unit
 
-  def count: Int = {
-    var c: Int = 0
-    foreach(t => c += 1)
-    c
-  }
+  def count: Int
 }
 
 class Empty extends TweetSet {
@@ -139,6 +135,8 @@ class Empty extends TweetSet {
   override def toString: String = "."
 
   override def union(that: TweetSet): TweetSet = that
+
+  def count: Int = 0
 }
 
 class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
@@ -178,6 +176,10 @@ class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
   override def union(that: TweetSet): TweetSet = {
     left.union(right.union(that)).incl(elem)
   }
+
+  override def count: Int = {
+    left.count + right.count + 1
+  }
 }
 
 trait TweetList {
@@ -190,14 +192,8 @@ trait TweetList {
       tail.foreach(f)
     }
   def count: Int = {
-    var c: Int = 0
-    foreach(t => c += 1)
-    c
-  }
-  override def toString: String = {
-    var result: String = "["
-    foreach(t => result = result + "[" + t + "]")
-    result + "]"
+    if (!isEmpty) tail.count + 1
+    else 0
   }
 }
 
@@ -205,10 +201,16 @@ object Nil extends TweetList {
   def head = throw new java.util.NoSuchElementException("head of EmptyList")
   def tail = throw new java.util.NoSuchElementException("tail of EmptyList")
   def isEmpty = true
+  override def toString: String = {
+    "[Nil]"
+  }
 }
 
 class Cons(val head: Tweet, val tail: TweetList) extends TweetList {
   def isEmpty = false
+  override def toString: String = {
+    "[" + head + "]" + tail
+  }
 }
 
 
@@ -216,17 +218,8 @@ object GoogleVsApple {
   val google = List("android", "Android", "galaxy", "Galaxy", "nexus", "Nexus")
   val apple = List("ios", "iOS", "iphone", "iPhone", "ipad", "iPad")
 
-  def filter(tweet: Tweet, keywords: List[String]): Boolean = {
-    for (keyword <- keywords if tweet.text.contains(keyword))
-      return true
-    false
-  }
-
-  def filterGoogle(tweet: Tweet): Boolean = filter(tweet, google)
-  def filterApple(tweet: Tweet): Boolean = filter(tweet, apple)
-
-  lazy val googleTweets: TweetSet = TweetReader.allTweets.filter(filterGoogle)
-  lazy val appleTweets: TweetSet = TweetReader.allTweets.filter(filterApple)
+  lazy val googleTweets: TweetSet = TweetReader.allTweets.filter(tweet => google.exists(keyword => tweet.text.contains(keyword)))
+  lazy val appleTweets: TweetSet = TweetReader.allTweets.filter(tweet => apple.exists(keyword => tweet.text.contains(keyword)))
 
   /**
    * A list of all tweets mentioning a keyword from either apple or google,
