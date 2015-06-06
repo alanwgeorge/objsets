@@ -1,5 +1,4 @@
 import week4._
-object nth {
   def nth[T](n: Int, list: List[T]): T = {
     if (list.isEmpty) throw new IndexOutOfBoundsException
     if (n == 0) list.head
@@ -14,9 +13,11 @@ object nth {
   f(7)
   val f2: Int => Int = x => x * x
   f2(7)
+
+
   val l1 = List()
   val l2 = List(3)
   val l3 = List(3, 4)
-}
+
 
 
