@@ -18,4 +18,7 @@ user match {
   case PremiumUser(name) => "Welcome back, dear " + name
 }
 
-
+user match {
+  case free: FreeUser => "Hello " + free.name
+  case prem: PremiumUser => "Welcome back, dear " + prem.name
+}
