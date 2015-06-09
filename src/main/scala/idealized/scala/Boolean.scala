@@ -7,7 +7,7 @@ abstract class Boolean {
   def || (x: => Boolean): Boolean = ifThenElse(True, x)
   def unary_! : Boolean = ifThenElse(False, True)
   def == (x: Boolean): Boolean = ifThenElse(x, x.unary_!)
-  def =! (x: Boolean): Boolean = ifThenElse(x.unary_!, x)
+  def != (x: Boolean): Boolean = ifThenElse(x.unary_!, x)
   def < (x: Boolean): Boolean = ifThenElse(False, x)
 }
 
@@ -17,6 +17,6 @@ object True extends Boolean {
 }
 
 object False extends Boolean {
-  override def ifThenElse[T](t: => T, e: => T): T = t
+  override def ifThenElse[T](t: => T, e: => T): T = e
   override def toString: String = "False"
 }
