@@ -11,7 +11,10 @@ def test(f: Int => Boolean): Boolean = {
 }
 
 val nums = List(1, 2, 3, 4, 5, 6, 7, 8)
-println(filter(nums, modN(2)))
+
+val part = modN(2)_
+
+println(filter(nums, part))
 println(filter(nums, modN(3)))
 test(modN(3))
 

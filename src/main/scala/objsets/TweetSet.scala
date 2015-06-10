@@ -3,10 +3,14 @@ package objsets
 /**
  * A class to represent tweets.
  */
-class Tweet(val user: String, val text: String, val retweets: Int) {
+case class Tweet(user: String, text: String, retweets: Int) {
   override def toString: String =
     "User: " + user + " " +
     "Text: " + text + " [" + retweets + "]"
+
+  def unapply(tweet: Tweet): Option[(String, String, Int)] = {
+    Some(tweet.user, tweet.text, retweets)
+  }
 }
 
 /**
@@ -139,7 +143,7 @@ class Empty extends TweetSet {
   def count: Int = 0
 }
 
-class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
+case class NonEmpty(elem: Tweet, left: TweetSet, right: TweetSet) extends TweetSet {
 
   def filterAcc(p: Tweet => Boolean, acc: TweetSet): TweetSet = {
     if (p(elem)) left.filterAcc(p, right.filterAcc(p, acc.incl(elem)))
