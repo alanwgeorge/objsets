@@ -5,8 +5,8 @@ trait Expr {
     this match {
       case Number(n) => n.toString
       case Var(n) => n
-      case Sum(e1, e2) => e1.show + " + " + e2.show
       case Sum(e1, Prod(p1, p2)) => e1.show + " + (" + p1.show + " * " + p2.show + ")"
+      case Sum(e1, e2) => e1.show + " + " + e2.show
       case Prod(e1, e2) => e1.show + " * " + e2.show
       case _ => "error"
     }
