@@ -17,4 +17,5 @@ val part = modN(2)_
 println(filter(nums, part))
 println(filter(nums, modN(3)))
 test(modN(3))
+modN(3)(3)
 
